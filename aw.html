@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Untuk Kamu 💕</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  background: #0d0d0d;
+  color: #f0f0f0;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+#screen {
+  padding: 16px 12px 100px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.r { color:#ff5555; }
+.p { color:#ff79c6; }
+.y { color:#f1fa8c; }
+.c { color:#8be9fd; }
+.w { color:#f8f8f2; }
+.d { color:#6272a4; }
+.b { font-weight:bold; }
+.ra1{color:#ff5555}.ra2{color:#f1fa8c}.ra3{color:#50fa7b}
+.ra4{color:#8be9fd}.ra5{color:#bd93f9}.ra6{color:#ff79c6}
+
+#tap-btn {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #111;
+  border-top: 1px solid #ff79c655;
+  color: #ff79c6;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  padding: 18px;
+  text-align: center;
+  cursor: pointer;
+  z-index: 999;
+  letter-spacing: 1px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#overlay {
+  position: fixed; inset: 0;
+  background: #0d0d0d;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px; z-index: 1000;
+  text-align: center; padding: 32px;
+}
+.hicon { font-size: 64px; animation: pulse 1.4s ease-in-out infinite; display:block; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+#overlay h1 { color:#ff79c6; font-size:18px; letter-spacing:2px; }
+#overlay p  { color:#6272a4; font-size:13px; line-height:1.8; }
+#sbtn {
+  background:#ff79c6; color:#0d0d0d;
+  border:none; border-radius:50px;
+  padding:14px 36px; font-size:16px;
+  font-family:'Courier New',monospace;
+  font-weight:bold; cursor:pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+</style>
+</head>
+<body>
+
+<div id="overlay">
+  <span class="hicon">💕</span>
+  <h1>Ada sesuatu buat kamu</h1>
+  <p>Tap tombol di bawah<br>untuk membuka hadiah spesialmu</p>
+  <button id="sbtn" onclick="startShow()">Buka Sekarang ✦</button>
+</div>
+
+<div id="screen"></div>
+<div id="tap-btn" onclick="onTap()">[ Tap di sini untuk melanjutkan ]</div>
+
+<script>
+var S = document.getElementById('screen');
+var tapBtn = document.getElementById('tap-btn');
+var tapCb = null;
+
+function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+function addLine(html){
+  var d = document.createElement('div');
+  d.innerHTML = html;
+  S.appendChild(d);
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+function addSpan(html){
+  var span = document.createElement('span');
+  span.innerHTML = html;
+  S.appendChild(span);
+  window.scrollTo(0, document.body.scrollHeight);
+  return span;
+}
+
+function sp(cls, txt){
+  txt = txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return '<span class="'+cls+'">'+txt+'</span>';
+}
+function esc(txt){
+  return txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function slowPrint(text, delay, cls){
+  delay = delay || 45;
+  cls = cls || '';
+  var container = document.createElement('div');
+  S.appendChild(container);
+  for(var i=0; i<text.length; i++){
+    var ch = text[i];
+    var s = document.createElement('span');
+    s.innerHTML = cls ? sp(cls, ch) : esc(ch);
+    container.appendChild(s);
+    window.scrollTo(0, document.body.scrollHeight);
+    await sleep(delay);
+  }
+}
+
+function waitTap(){
+  return new Promise(function(resolve){
+    tapBtn.style.display = 'block';
+    tapCb = resolve;
+  });
+}
+function onTap(){
+  if(tapCb){
+    tapBtn.style.display = 'none';
+    var cb = tapCb; tapCb = null; cb();
+  }
+}
+
+function rainbow(text){
+  var cls=['ra1','ra2','ra3','ra4','ra5','ra6'];
+  var out='';
+  for(var i=0;i<text.length;i++){
+    out += sp(cls[i%cls.length], text[i]);
+  }
+  return out;
+}
+
+async function loadingBar(label){
+  addLine('');
+  var row = addSpan('  '+sp('c', label)+'  ['+sp('d','........................')+']');
+  var bar = '';
+  for(var i=0;i<24;i++){
+    bar += '█';
+    var dots = '·'.repeat(24-i-1);
+    row.innerHTML = '  '+sp('c',label)+'  ['+sp('p',bar)+sp('d',dots)+']';
+    window.scrollTo(0, document.body.scrollHeight);
+    await sleep(55);
+  }
+  row.innerHTML = '  '+sp('c',label)+'  ['+sp('p','█'.repeat(24))+'] '+sp('y','✔');
+  addLine('');
+  await sleep(300);
+}
+
+async function floatingHearts(){
+  var syms=['♥','❤','♡','˚','·'];
+  for(var f=0;f<3;f++){
+    S.innerHTML='';
+    addLine('');
+    for(var r=0;r<10;r++){
+      var line='  ';
+      for(var c=0;c<44;c++){
+        var p=Math.random();
+        if(p<0.07){
+          var s=syms[Math.floor(Math.random()*syms.length)];
+          if(s==='♥'||s==='❤') line+=sp('r',s);
+          else if(s==='♡') line+=sp('p',s);
+          else line+=sp('d',s);
+        } else line+=' ';
+      }
+      addLine(line);
+    }
+    await sleep(430);
+  }
+  S.innerHTML='';
+}
+
+async function fireworks(){
+  for(var f=0;f<4;f++){
+    S.innerHTML='';
+    addLine('');
+    for(var r=0;r<12;r++){
+      var line='  ';
+      for(var c=0;c<48;c++){
+        var p=Math.random();
+        if(p<0.04) line+=sp('r','✦');
+        else if(p<0.08) line+=sp('y','★');
+        else if(p<0.12) line+=sp('c','✧');
+        else if(p<0.16) line+=sp('p','·');
+        else line+=' ';
+      }
+      addLine(line);
+    }
+    await sleep(220);
+  }
+  S.innerHTML='';
+}
+
+async function drawHeart(){
+  var heart=[
+    "        ♥♥♥♥♥      ♥♥♥♥♥        ",
+    "      ♥♥♥♥♥♥♥♥♥  ♥♥♥♥♥♥♥♥♥      ",
+    "    ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥    ",
+    "    ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥    ",
+    "    ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥    ",
+    "      ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥      ",
+    "        ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥        ",
+    "          ♥♥♥♥♥♥♥♥♥♥♥♥♥          ",
+    "            ♥♥♥♥♥♥♥♥♥            ",
+    "              ♥♥♥♥♥              ",
+    "                ♥                ",
+  ];
+  for(var i=0;i<heart.length;i++){
+    addLine(sp('r', heart[i]));
+    await sleep(70);
+  }
+}
+
+async function confetti(){
+  var syms=['✦','✧','★','·','˚','°','✿','❀','✾','✺'];
+  var cls=['r','p','y','c','w'];
+  for(var i=0;i<5;i++){
+    var line='  ';
+    for(var j=0;j<40;j++){
+      var s=syms[Math.floor(Math.random()*syms.length)];
+      var cl=cls[Math.floor(Math.random()*cls.length)];
+      line+=sp(cl,s);
+    }
+    addLine(line);
+    await sleep(130);
+  }
+}
+
+async function starsScene(){
+  var stars=['·','˙','✦','✧','⋆','*'];
+  var cls=['w','y','c'];
+  addLine('');
+  for(var r=0;r<8;r++){
+    var line='  ';
+    for(var c=0;c<44;c++){
+      if(Math.random()<0.15){
+        var s=stars[Math.floor(Math.random()*stars.length)];
+        var cl=cls[Math.floor(Math.random()*cls.length)];
+        line+=sp(cl,s);
+      } else line+=' ';
+    }
+    addLine(line);
+  }
+  addLine('');
+}
+
+async function main(){
+  addLine('');
+  await slowPrint('  Memuat sesuatu yang spesial untuk kamu...', 35, 'd');
+  await sleep(500);
+
+  await loadingBar('Mengumpulkan semua rasa sayang');
+  await loadingBar('Menata bunga-bunga virtual buat kamuuu...');
+  await loadingBar('Mengumpulkan semua ucapan terbaik...');
+
+  await floatingHearts();
+
+  addLine('');
+  addLine(rainbow('  ✦  S E L A M A T   S E M P R O !  ✦'));
+  addLine('');
+  await sleep(800);
+
+  await confetti();
+  await sleep(300);
+  await fireworks();
+
+  addLine('');
+  await slowPrint('  ✦  Hi ma princesskuuu ', 45, 'p');
+  await sleep(500);
+  await slowPrint('  ✦  Ciee hari ini kamu sempro yaaa ', 40, 'p');
+  await sleep(200);
+  await slowPrint('     CONGRATSS YAAA BEBBYYY AKUU', 40, 'w');
+  await slowPrint('     Selamat menikmatii Cintaku', 40, 'w');
+  await sleep(800);
+  addLine('');
+
+  await sleep(600);
+  addLine(sp('p','  '+'─'.repeat(38)));
+  addLine('');
+  await slowPrint('  hii cayangggakuuu ,', 60, 'p');
+  addLine('');
+
+  var paras=[
+    ['  Hallo my princess awcannkuu.','w',50],
+    ['  Finally u finished this,','w',50],
+    ['  Kamu udah hebat sayang , bisa bertahan sampai saat ini','w',45],
+    [null,null,150],
+    ['  Yah, dari revisi dr.Alfian yang susah','w',45],
+    ['  Sampai TTD dosen penguji yang bikin kamu menangis','w',45],
+    [null,null,150],
+    ['  Im so sorry cause my location far from u','w',45],
+    ['  Walaupun, aku dah jauh dari kamu tapi aku usahain buat kamu juga','w',40],
+    [null,null,150],
+    ['  Aku selalu kepikiran tentang kamu','w',45],
+    ['  Hadapin masalah semua ini.','w',45],
+    [null,null,150],
+    ['  Im so proud of u','w',50],
+    ['  Kamu Harus kuat ya sayangggg','w',50],
+    [null,null,150],
+    ['  LOVEUUUUSOMUCHHH CINTAKUUUU MY PRINCESS','p',40],
+  ];
+
+  for(var i=0;i<paras.length;i++){
+    var row=paras[i];
+    if(row[0]===null){ addLine(''); await sleep(row[2]); }
+    else await slowPrint(row[0], row[2], row[1]);
+  }
+
+  addLine('');
+  addLine(sp('p','  '+'─'.repeat(38)));
+  addLine('');
+  await sleep(1000);
+
+  await starsScene();
+  await drawHeart();
+  addLine('');
+  await slowPrint('      I love u Somuchh . 💕', 50, 'p b');
+  await slowPrint('      everything about u .', 40, 'd');
+  addLine('');
+  addLine(sp('d','      '+'· '.repeat(18)));
+  addLine('');
+
+  await waitTap();
+
+  S.innerHTML='';
+  addLine('');
+  await slowPrint('  Dengan cinta 💕', 60, 'p');
+  addLine('');
+}
+
+function startShow(){
+  document.getElementById('overlay').style.display='none';
+  main();
+}
+</script>
+</body>
+</html>
